@@ -1,13 +1,24 @@
-import express, { json } from "express";
+import express from 'express';
+import cookieParser from 'cookie-parser';
+import logger from 'morgan';
+import cors from 'cors';
+
+import routes from 'routes';
 
 const app = express();
 
-app.use(json());
-
-const PORT = process.env.PORT || 3000;
-
-app.get("/", async (req, res) => {
-  res.json({ status: true, message: "Our node.js app works" });
+app.use(
+  cors({
+    origin: '*',
+  })
+);
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use('/api', routes);
+app.use('/', (req, res) => {
+  res.send('Hello World');
 });
 
-app.listen(PORT, () => console.log(`App listening at port ${PORT}`));
+module.exports = app;
