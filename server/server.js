@@ -1,24 +1,25 @@
-import express from 'express';
-import cookieParser from 'cookie-parser';
-import logger from 'morgan';
-import cors from 'cors';
-
-import routes from 'routes';
+import express, { json } from 'express';
+import * as dotenv from 'dotenv';
+import mongoose from 'mongoose';
 
 const app = express();
 
-app.use(
-  cors({
-    origin: '*',
-  })
+dotenv.config({ path: __dirname + './../config.env' });
+// console.log(process.env);
+
+const DB = process.env.DATABASE.replace(
+  '<PASSWORD>',
+  process.env.DATABASE_PASSWORD
 );
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use('/api', routes);
-app.use('/', (req, res) => {
-  res.send('Hello World');
+// console.log(DB);
+mongoose.connect(DB, {}).then(() => console.log('DB connection successful!'));
+
+app.use(json());
+
+const PORT = process.env.PORT || 8000;
+
+app.get('/', async (req, res) => {
+  res.json({ status: true, message: 'Our node.js app works' });
 });
 
-module.exports = app;
+app.listen(PORT, () => console.log(`App listening at port ${PORT}`));
