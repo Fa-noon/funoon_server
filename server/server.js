@@ -1,12 +1,8 @@
-import express, { json } from 'express';
 import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 
-const app = express();
-
-
+//---------------------------Connect Databse------------------------
 dotenv.config({ path: __dirname + './../config.env' });
-
 const DB = process.env.DATABASE.replace(
   '<PASSWORD>',
   process.env.DATABASE_PASSWORD
@@ -14,10 +10,9 @@ const DB = process.env.DATABASE.replace(
 
 mongoose.connect(DB, {}).then(() => console.log('DB connection successful!'));
 
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.PORT;
 
-app.get('/', async (req, res) => {
-  res.json({ status: true, message: 'Our node.js app works' });
-});
+//---------------------------Import configuration of App------------------------
+const app = require('./app');
 
-app.listen(PORT, () => console.log(`App listening at port ${PORT}`));
+app.listen(PORT, () => console.log(`Server live at port:${PORT}`));

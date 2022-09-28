@@ -1,4 +1,3 @@
-
 const express = require('express');
 const userController = require('./../controllers/userController');
 const authController = require('./../controllers/authController');
@@ -23,7 +22,7 @@ router.delete('/deleteMe', authController.protect, userController.deleteMe);
 router
   .route('/')
   .get(userController.getAllUsers)
-  .post(userController.createUser);
+  .post(authController.signup);
 
 router
   .route('/:id')
@@ -32,22 +31,3 @@ router
   .delete(userController.deleteUser);
 
 module.exports = router;
-
-//----------------------------------------------------------------
-//import express from 'express';
-// const router = express.Router();
-
-// //import controllers
-// import { authController } from './../controllers/authController';
-// //import validators and middlewares
-// const {
-//   requireSignin,
-//   authMiddleware,
-//   verifyToken,
-// } = require('middlewares/auth');
-
-// //routes
-// router.post('/login', authController.login);
-// //router.post('/register', register);
-
-// module.exports = router;

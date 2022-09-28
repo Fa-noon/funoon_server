@@ -5,6 +5,7 @@ import User from './../models/userModel';
 import catchAsync from './../helpers/catchAsync';
 import AppError from './../helpers/appError';
 
+//--------------------------Helper Methods------------------------
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -168,7 +169,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   }
 });
 
-// //-------------------------------Reset Password---------------------------------------
+//-------------------------------Reset Password---------------------------------------
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
   // 1) Get user based on the token
