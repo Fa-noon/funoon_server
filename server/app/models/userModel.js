@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import crypto from 'crypto';
+import bycrpyt from 'bcryptjs';
+import validator from 'validator';
 
 const userSchema = new mongoose.Schema(
   {
@@ -15,6 +17,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      validate : [validator.is,'Please provide a valid email address'],
     },
     hashed_password: {
       type: String,
