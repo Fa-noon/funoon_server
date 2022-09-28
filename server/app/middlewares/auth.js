@@ -1,11 +1,11 @@
 import expressJwt from 'express-jwt';
-import { User } from 'models';
+const User = require('models/user');
 // import { searchToken } from 'lib/redis';
 
 //--------------------------------Require Signin Middleware------------------------------------------
 
 const requireSignin = expressJwt({
-  secret: process.env.JWT_SECRET,
+  secret: '1233333333333333333333333333n',
   algorithms: ['sha1', 'RS256', 'HS256'],
 }); // req.user
 
