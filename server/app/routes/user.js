@@ -10,7 +10,7 @@ const {
 } = require('middlewares/auth');
 
 //routes
-router.post('/login', userLoginValidator, runValidation, login);
-router.post('/register', userRegisterValidator, runValidation, register);
+router.post('/login', login);
+router.post('/register', register);
 
 module.exports = router;
