@@ -1,9 +1,9 @@
 import express from 'express';
 
-const router = express.Router();
+const router = express;
 
-import user from './user';
+import user from './userRoutes';
 
-router.use('/user', user);
+router.use('/api/v1/users', user);
 
 module.exports = router;

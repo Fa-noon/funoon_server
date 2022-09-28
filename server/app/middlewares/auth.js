@@ -1,5 +1,5 @@
 import expressJwt from 'express-jwt';
-const User = require('models/user');
+import User from './../models/userModel'
 // import { searchToken } from 'lib/redis';
 
 //--------------------------------Require Signin Middleware------------------------------------------
