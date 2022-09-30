@@ -1,7 +1,9 @@
 import express from 'express';
 import morgan from 'morgan';
 import userRouter from './app/routes/userRoutes';
+import postRouter from './app/routes/postRoutes';
 import AppError from './app/helpers/appError';
+import helmet from 'helmet';
 import * as dotenv from 'dotenv';
 
 const app = express();
@@ -15,8 +17,12 @@ app.use(
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
+//--------------------------Secuirty------------------------
+app.use(helmet());
+
 //--------------------------Mounting rounters------------------------
 app.use('/api/v1/users', userRouter);
+app.use('/api/v1/posts', postRouter);
 
 //--------------------------Invalid Urls------------------------
 app.all('*', (req, res, next) => {

@@ -4,12 +4,18 @@ import jwt from 'jsonwebtoken';
 import User from './../models/userModel';
 import catchAsync from './../helpers/catchAsync';
 import AppError from './../helpers/appError';
+import { request } from 'http';
 
 //--------------------------Helper Methods------------------------
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
+};
+
+const getId = (tokken) => {
+  var decoded = jwt.verify(tokken.split(' ')[1], process.env.JWT_SECRET);
+  return decoded['id'];
 };
 
 const createSendToken = (user, statusCode, res) => {
@@ -101,7 +107,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   }
 
   // 4) Check if user changed password after the token was issued
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
+  if (currentUser.changedPasswordAfterTokenIssue(decoded.iat)) {
     return next(
       new AppError('User recently changed password! Please log in again.', 401)
     );
@@ -126,6 +132,25 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
+//-------------------------------Forbid---------------------------------------
+
+exports.forbid = catchAsync(async (req, res, next) => {
+  const id = getId(req.headers.authorization);
+
+  const user = await User.findById(id);
+
+  if (!user) {
+    return next(new AppError('No post found with that ID', 404));
+  }
+
+  if (user.id !== id) {
+    return next(new AppError('You do not own this post', 403));
+  }
+
+  req.body.id = id;
+
+  next();
+});
 
 //-------------------------------Forgot Password---------------------------------------
 exports.forgotPassword = catchAsync(async (req, res, next) => {
