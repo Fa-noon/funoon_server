@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import validator from 'validator';
 import User from './userModel';
+const { ObjectId } = mongoose.Schema;
 
 const postSchema = new mongoose.Schema({
   title: {
@@ -15,14 +16,8 @@ const postSchema = new mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: 'User',
   },
-  likes: {
-    type: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-  },
+  likes: {type: Number, default: 0 },
+  likesIDs: [{ type: ObjectId, ref: "User" }],
   comments: {
     type: [
       {
