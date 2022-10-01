@@ -1,8 +1,8 @@
 import express from 'express';
 import morgan from 'morgan';
-import userRouter from './app/routes/userRoutes';
-import postRouter from './app/routes/postRoutes';
-import AppError from './app/helpers/appError';
+import userRouter from './app/routes/userRoutes.js';
+import postRouter from './app/routes/postRoutes.js';
+import AppError from './app/helpers/appError.js';
 import helmet from 'helmet';
 
 const app = express();
@@ -40,4 +40,4 @@ app.all('*', (req, res, next) => {
 });
 
 
-module.exports = app;
+export default app;

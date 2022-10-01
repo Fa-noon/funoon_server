@@ -1,17 +1,16 @@
-const express = require('express');
-const postController = require('../controllers/postController');
-const authController = require('../controllers/authController');
-const authMiddleware = require("middlewares/authMiddleware")
+import express from 'express';
+import {uploadUserPhoto,createPost,updatePost,getPost,deletePost,likePost} from '../controllers/postController.js';
+import {protect,forbid} from "../middlewares/authMiddleware.js"
 
 
 const router = express.Router();
 
-router.post('/createPost', authMiddleware.protect,postController.uploadUserPhoto, postController.createPost);
+router.post('/createPost', protect,uploadUserPhoto, createPost);
 
 router
-  .get('/:id', postController.getPost)
-  .patch('/:id', authMiddleware.protect,authMiddleware.forbid, postController.updatePost)
-  .delete('/:id', authMiddleware.protect,authMiddleware.forbid, postController.deletePost)
-  .put("/like",authMiddleware.protect,postController.likePost);
+  .get('/:id', getPost)
+  .patch('/:id', protect,forbid, updatePost)
+  .delete('/:id', protect,forbid, deletePost)
+  .put("/like",protect,likePost);
 
-module.exports = router;
+export default router;

@@ -1,31 +1,31 @@
-const express = require('express');
-const userController = require('../controllers/userController');
-const authController = require('../controllers/authController');
-const authMiddleware = require("middlewares/authMiddleware")
+import express from 'express';
+import {uploadUserPhoto,deleteMe,getAllUsers,updateMe,getUser,updateUser,deleteUser} from '../controllers/userController.js';
+import {signup,login,forgotPassword,resetPassword,updatePassword} from '../controllers/authController.js';
+import {protect} from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
-router.post('/signup', authController.signup);
-router.post('/login', authController.login);
+router.post('/signup', signup);
+router.post('/login', login);
 
-router.post('/forgotPassword', authController.forgotPassword);
-router.patch('/resetPassword/:token', authController.resetPassword);
+router.post('/forgotPassword', forgotPassword);
+router.patch('/resetPassword/:token', resetPassword);
 
 router.patch(
   '/updateMyPassword',
-  authMiddleware.protect,
-  authController.updatePassword
+  protect,
+  updatePassword
 );
 
-router.patch('/updateMe', authMiddleware.protect,userController.uploadUserPhoto, userController.updateMe);
-router.delete('/deleteMe', authMiddleware.protect, userController.deleteMe);
+router.patch('/updateMe', protect,uploadUserPhoto, updateMe);
+router.delete('/deleteMe', protect, deleteMe);
 
-router.route('/').get(userController.getAllUsers).post(authController.signup);
+router.route('/').get(getAllUsers).post(signup);
 
 router
   .route('/:id')
-  .get(userController.getUser)
-  .patch(userController.updateUser)
-  .delete(userController.deleteUser);
+  .get(getUser)
+  .patch(updateUser)
+  .delete(deleteUser);
 
-module.exports = router;
+export default router;
