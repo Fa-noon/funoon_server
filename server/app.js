@@ -6,6 +6,7 @@ import AppError from './app/helpers/appError';
 import helmet from 'helmet';
 
 const app = express();
+
 //--------------------------Parsing the JSON------------------------
 app.use(
   express.json({
@@ -28,9 +29,15 @@ app.use(helmet());
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/posts', postRouter);
 
+//------------------------------For testing-------------------------------------
+app.use('/', (req, res) => {
+  res.send('Working Fine!')
+});
+
 //--------------------------Invalid Urls------------------------
 app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
+
 
 module.exports = app;
