@@ -1,7 +1,6 @@
-const AppError = require('./../helpers/appError');
-const User = require('./../models/userModel');
-const APIFeatures = require('../helpers/APIfeatures.js');
-const catchAsync = require('./../helpers/catchAsync');
+import AppError from './../helpers/appError.js';
+import User from './../models/userModel.js';
+import catchAsync from './../helpers/catchAsync.js';
 import multer from 'multer';
 import sharp from 'sharp';
 
@@ -20,9 +19,9 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-exports.uploadUserPhoto = upload.single('photo');
+export const uploadUserPhoto = upload.single('photo');
 
-exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+export const resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
@@ -44,7 +43,7 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 //--------------------------Get All Users------------------------
-exports.getAllUsers = catchAsync(async (req, res, next) => {
+export const getAllUsers = catchAsync(async (req, res, next) => {
   const users = await User.find();
 
   // SEND RESPONSE
@@ -58,7 +57,7 @@ exports.getAllUsers = catchAsync(async (req, res, next) => {
 });
 
 //--------------------------Update Current User------------------------
-exports.updateMe = catchAsync(async (req, res, next) => {
+export const updateMe = catchAsync(async (req, res, next) => {
   // 1) create error if user posts password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(
@@ -87,7 +86,7 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 //--------------------------Delete Current User------------------------
-exports.deleteMe = catchAsync(async (req, res, next) => {
+export const deleteMe = catchAsync(async (req, res, next) => {
   await User.findByIdAndUpdate(req.user._id, {
     isActive: false,
   });
@@ -98,7 +97,7 @@ exports.deleteMe = catchAsync(async (req, res, next) => {
   });
 });
 //--------------------------Delete User ny id------------------------
-exports.deleteUser = catchAsync(async (req, res, next) => {
+export const deleteUser = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndDelete(req.params.id);
 
   if (!user) {
@@ -110,7 +109,7 @@ exports.deleteUser = catchAsync(async (req, res, next) => {
   });
 });
 //--------------------------Get User ny id------------------------
-exports.getUser = catchAsync(async (req, res, next) => {
+export const getUser = catchAsync(async (req, res, next) => {
   const user = await User.findById(req.params.id);
 
   if (!user) {
@@ -124,7 +123,7 @@ exports.getUser = catchAsync(async (req, res, next) => {
   });
 });
 //--------------------------Update User ny id------------------------
-exports.updateUser = catchAsync(async (req, res, next) => {
+export const updateUser = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,

@@ -1,11 +1,16 @@
 import { promisify } from 'util';
 import jwt from 'jsonwebtoken';
-import User from './../models/userModel';
-import catchAsync from './../helpers/catchAsync';
-import AppError from './../helpers/appError';
+import User from './../models/userModel.js';
+import catchAsync from './../helpers/catchAsync.js';
+import AppError from './../helpers/appError.js';
+
+const getId = (tokken) => {
+  var decoded = jwt.verify(tokken.split(' ')[1], process.env.JWT_SECRET);
+  return decoded['id'];
+};
 //-------------------------------Protect---------------------------------------
 
-exports.protect = catchAsync(async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
     // 1) Getting token and check of it's there
     let token;
     if (
@@ -49,7 +54,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   
   //-------------------------------Restriction---------------------------------------
   
-  exports.restrictTo = (...roles) => {
+  export const restrictTo = (...roles) => {
     return (req, res, next) => {
       // roles ['admin', 'lead-guide']. role='user'
       if (!roles.includes(req.user.role)) {
@@ -63,7 +68,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   };
   //-------------------------------Forbid---------------------------------------
   
-  exports.forbid = catchAsync(async (req, res, next) => {
+  export const forbid = catchAsync(async (req, res, next) => {
     const id = getId(req.headers.authorization);
   
     const user = await User.findById(id);

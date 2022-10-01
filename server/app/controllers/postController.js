@@ -1,9 +1,9 @@
-import AppError from './../helpers/appError';
-import Post from './../models/postModel';
-import User from './../models/userModel';
+import AppError from './../helpers/appError.js';
+import Post from './../models/postModel.js';
+import User from './../models/userModel.js';
 import APIFeatures from '../helpers/APIfeatures.js';
-import catchAsync from '../helpers/catchAsync';
-import jwt, { JsonWebTokenError } from 'jsonwebtoken';
+import catchAsync from '../helpers/catchAsync.js';
+import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import sharp from 'sharp';
 
@@ -22,9 +22,9 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-exports.uploadUserPhoto = upload.array('images', 10);
+export const uploadUserPhoto = upload.array('images', 10);
 
-exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
+export const resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
 
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
@@ -52,7 +52,7 @@ const getId = (tokken) => {
 };
 // ---------------------Create Post-------------------------------------------
 
-exports.createPost = catchAsync(async (req, res, next) => {
+export const createPost = catchAsync(async (req, res, next) => {
   const id = getId(req.headers.authorization);
   const images = [];
   if (req.files) {
@@ -79,7 +79,7 @@ exports.createPost = catchAsync(async (req, res, next) => {
 
 // ---------------------Get Post-------------------------------------------
 
-exports.getPost = catchAsync(async (req, res, next) => {
+export const getPost = catchAsync(async (req, res, next) => {
   const post = await Post.findById(req.params.id);
 
   if (!post) {
@@ -94,7 +94,7 @@ exports.getPost = catchAsync(async (req, res, next) => {
 });
 // ---------------------Update Post-------------------------------------------
 
-exports.updatePost = catchAsync(async (req, res, next) => {
+export const updatePost = catchAsync(async (req, res, next) => {
   const newPost = await Post.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -114,7 +114,7 @@ exports.updatePost = catchAsync(async (req, res, next) => {
 
 // ---------------------Delete Post-------------------------------------------
 
-exports.deletePost = catchAsync(async (req, res, next) => {
+export const deletePost = catchAsync(async (req, res, next) => {
   const deletedPost = await Post.findByIdAndDelete(req.params.id);
 
   if (!deletedPost) {
@@ -129,7 +129,7 @@ exports.deletePost = catchAsync(async (req, res, next) => {
 
 //-------------------------------- Like and Dislike Post -----------------------------------------
 
-exports.likePost = (req, res) => {
+export const likePost = (req, res) => {
   const { postId } = req.body;
   Post.findById(postId).exec((err,result)=>{
     if (err) {

@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import validator from 'validator';
-import User from './userModel';
+import User from './userModel.js';
 const { ObjectId } = mongoose.Schema;
 
 const postSchema = new mongoose.Schema({
@@ -60,4 +60,4 @@ const postSchema = new mongoose.Schema({
 
 const Post = mongoose.model('Post', postSchema);
 
-module.exports = Post;
+export default Post;
