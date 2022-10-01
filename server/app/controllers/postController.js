@@ -127,28 +127,38 @@ exports.deletePost = catchAsync(async (req, res, next) => {
   });
 });
 
-//-------------------------------- Like Post -----------------------------------------
+//-------------------------------- Like and Dislike Post -----------------------------------------
 
 exports.likePost = (req, res) => {
   const { postId } = req.body;
-  Post.findByIdAndUpdate(postId, {$inc: { likes: 1 },$push:{likesIDs:req.user.id}}, { upsert: true ,new: true }).exec((err,result)=>{
-      if (err) {
-               return next(new AppError('Could not update like count', 400));
-          }
-      res.status(204).json({status: 'success',result});
-
-  })
-};
-
-//--------------------------------- Dislike Post--------------------------------------
-
-exports.dislikePost = (req, res, next) => {
-  const { postId } = req.body;
-  Post.findByIdAndUpdate(postId, { $inc: { likes: -1 },$pull:{likesIDs:req.user.id}}, { upsert: true, new: true }).exec((err,result)=>{
-      if (err) {
-              return next(new AppError('Could not update like count', 400));
-          }
-      res.status(204).json({status: 'success',result});
-
+  Post.findById(postId).exec((err,result)=>{
+    if (err) {
+      return next(new AppError('Could not update like count', 400));
+    }
+    if(!result.likesIDs.includes(req.user.id)){
+      //if user has not liked the post. Like it
+      Post.findByIdAndUpdate(postId, {$inc: { likes: 1 },$push:{likesIDs:req.user.id}}, { upsert: true ,new: true }).exec((err,result)=>{
+        if (err) {
+                 return next(new AppError('Could not update like count', 400));
+            }
+        res.status(200).json({
+          status: 'success',
+          data: result,
+        });
+  
+    })
+    }
+    else{
+      //if user has liked the post. Dislike it
+      Post.findByIdAndUpdate(postId, { $inc: { likes: -1 },$pull:{likesIDs:req.user.id}}, { upsert: true, new: true }).exec((err,result)=>{
+        if (err) {
+                return next(new AppError('Could not update like count', 400));
+            }
+        res.status(200).json({
+          status: 'success',
+          data: result,
+        });
+    })
+    }
   })
 };

@@ -10,7 +10,6 @@ router
   .get('/:id', postController.getPost)
   .patch('/:id', authController.protect,authController.forbid, postController.updatePost)
   .delete('/:id', authController.protect,authController.forbid, postController.deletePost)
-  .put("/like",authController.protect,postController.likePost)
-  .put("/dislike",authController.protect,postController.dislikePost)
+  .put("/like",authController.protect,postController.likePost);
 
 module.exports = router;
