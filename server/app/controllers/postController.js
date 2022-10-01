@@ -126,3 +126,29 @@ exports.deletePost = catchAsync(async (req, res, next) => {
     data: null,
   });
 });
+
+//-------------------------------- Like Post -----------------------------------------
+
+exports.likePost = (req, res) => {
+  const { postId } = req.body;
+  Post.findByIdAndUpdate(postId, {$inc: { likes: 1 },$push:{likesIDs:req.user.id}}, { upsert: true ,new: true }).exec((err,result)=>{
+      if (err) {
+               return next(new AppError('Could not update like count', 400));
+          }
+      res.status(204).json({status: 'success',result});
+
+  })
+};
+
+//--------------------------------- Dislike Post--------------------------------------
+
+exports.dislikePost = (req, res, next) => {
+  const { postId } = req.body;
+  Post.findByIdAndUpdate(postId, { $inc: { likes: -1 },$pull:{likesIDs:req.user.id}}, { upsert: true, new: true }).exec((err,result)=>{
+      if (err) {
+              return next(new AppError('Could not update like count', 400));
+          }
+      res.status(204).json({status: 'success',result});
+
+  })
+};

@@ -9,6 +9,8 @@ router.post('/createPost', authController.protect,postController.uploadUserPhoto
 router
   .get('/:id', postController.getPost)
   .patch('/:id', authController.protect,authController.forbid, postController.updatePost)
-  .delete('/:id', authController.protect,authController.forbid, postController.deletePost);
+  .delete('/:id', authController.protect,authController.forbid, postController.deletePost)
+  .put("/like",authController.protect,postController.likePost)
+  .put("/dislike",authController.protect,postController.dislikePost)
 
 module.exports = router;
