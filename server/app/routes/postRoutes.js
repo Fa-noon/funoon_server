@@ -4,7 +4,7 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router.post('/createPost', authController.protect, postController.createPost);
+router.post('/createPost', authController.protect,postController.uploadUserPhoto, postController.createPost);
 
 router
   .get('/:id', postController.getPost)

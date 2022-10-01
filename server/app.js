@@ -4,7 +4,6 @@ import userRouter from './app/routes/userRoutes';
 import postRouter from './app/routes/postRoutes';
 import AppError from './app/helpers/appError';
 import helmet from 'helmet';
-import * as dotenv from 'dotenv';
 
 const app = express();
 //--------------------------Parsing the JSON------------------------
@@ -13,6 +12,11 @@ app.use(
     limit: '10kb',
   })
 );
+
+app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
 //--------------------------Logging in dev mode------------------------
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
