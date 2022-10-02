@@ -164,6 +164,7 @@ export const likePost = (req, res) => {
 };
 
 //--------------------------Get All Posts------------------------
+
 export const getAllPosts = catchAsync(async (req, res, next) => {
   const posts = await Post.find();
 
@@ -176,3 +177,19 @@ export const getAllPosts = catchAsync(async (req, res, next) => {
     },
   });
 });
+
+//----------------------- Post Search-----------------------------
+
+export const postSearch = catchAsync(async(req,res,next)=>{
+ const SearchQuery = "(?i)"+req.query.search;
+  console.log(SearchQuery);
+ User.find({"name": {$regex : SearchQuery}}).exec((err,result)=>{
+  if (err) {
+    return next(new AppError('Could not search users', 400));
+  }
+  res.status(200).json({
+    status: 'success',
+    data: result,
+  });
+ })
+}) 
