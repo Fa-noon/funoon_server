@@ -162,3 +162,17 @@ export const likePost = (req, res) => {
     }
   })
 };
+
+//--------------------------Get All Posts------------------------
+export const getAllPosts = catchAsync(async (req, res, next) => {
+  const posts = await Post.find();
+
+  // SEND RESPONSE
+  res.status(200).json({
+    status: 'success',
+    results: posts.length,
+    data: {
+      posts,
+    },
+  });
+});
