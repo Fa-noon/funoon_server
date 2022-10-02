@@ -2,6 +2,7 @@ import express from 'express';
 import morgan from 'morgan';
 import userRouter from './app/routes/userRoutes.js';
 import postRouter from './app/routes/postRoutes.js';
+import globalRouter from  "./app/routes/globalRoutes.js"
 import AppError from './app/helpers/appError.js';
 import helmet from 'helmet';
 
@@ -28,6 +29,8 @@ app.use(helmet());
 //--------------------------Mounting rounters------------------------
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/posts', postRouter);
+app.use("/api/v1",globalRouter)
+
 
 //------------------------------For testing-------------------------------------
 app.use('/', (req, res) => {
