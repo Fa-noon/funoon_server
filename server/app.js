@@ -6,6 +6,7 @@ import globalRouter from  "./app/routes/globalRoutes.js"
 import commentsRoutes from "./app/routes/commentsRoutes.js"
 import AppError from './app/helpers/appError.js';
 import helmet from 'helmet';
+import globalErrorHandler from  './app/controllers/errorController.js'
 
 const app = express();
 
@@ -36,7 +37,7 @@ app.use("/api/v1",globalRouter);
 
 //------------------------------For testing-------------------------------------
 app.use('/', (req, res) => {
-  res.send('Working Fine!')
+  res.send('Working Fine!');
 });
 
 //--------------------------Invalid Urls------------------------
@@ -44,5 +45,7 @@ app.all('*', (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
 });
 
+//--------------------------Global Error Handeling------------------------
+app.use(globalErrorHandler);
 
 export default app;
