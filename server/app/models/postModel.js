@@ -30,6 +30,7 @@ const postSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
+  sharesIDs: [{ type: ObjectId, ref: "User" }],
 
   isSold: {
     type: Boolean,
