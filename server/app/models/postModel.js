@@ -12,10 +12,6 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  creator: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-  },
   likes: {type: Number, default: 0 },
   likesIDs: [{ type: ObjectId, ref: "User" }],
  // a blog post can have multiple comments, so it should be in a array.
@@ -52,8 +48,8 @@ const postSchema = new mongoose.Schema({
     type: [String],
   },
   createdBy: {
-    type: String,
-    required: true,
+    type: ObjectId,
+    ref: 'User',
   },
 });
 
