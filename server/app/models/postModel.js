@@ -18,14 +18,12 @@ const postSchema = new mongoose.Schema({
   },
   likes: {type: Number, default: 0 },
   likesIDs: [{ type: ObjectId, ref: "User" }],
-  comments: {
-    type: [
-      {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-      },
-    ],
-  },
+ // a blog post can have multiple comments, so it should be in a array.
+ // all comments info should be kept in this array of this blog post.
+  comments: [{
+      type: ObjectId,
+      ref: 'Comment'
+  }],
   shares: {
     type: Number,
     default: 0,
