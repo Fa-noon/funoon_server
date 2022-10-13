@@ -3,6 +3,26 @@ import validator from 'validator';
 import User from './userModel.js';
 const { ObjectId } = mongoose.Schema;
 
+//------------------------Comment Schema-------------------------
+
+const commentSchema = new mongoose.Schema({
+  body: {
+    type: String,
+    trim: true,
+    required: true
+  },
+  date: {
+    type: Date,
+    default: Date.now
+  },
+  createdBy:{
+   type: ObjectId,
+   ref: 'User',
+  },
+})
+
+//------------------------------------Post Schema---------------------------
+
 const postSchema = new mongoose.Schema({
   title: {
     type: String,
@@ -17,8 +37,7 @@ const postSchema = new mongoose.Schema({
  // a blog post can have multiple comments, so it should be in a array.
  // all comments info should be kept in this array of this blog post.
   comments: [{
-      type: ObjectId,
-      ref: 'Comment'
+      type: commentSchema,
   }],
   shares: {
     type: Number,
