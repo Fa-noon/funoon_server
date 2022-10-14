@@ -129,45 +129,51 @@ export const deletePost = catchAsync(async (req, res, next) => {
 
 //-------------------------------- Like and Dislike Post -----------------------------------------
 
-export const likePost = (req, res,next) => {
+export const likePost = (req, res, next) => {
   const { postId } = req.body;
-  Post.findById(postId).exec((err,result)=>{
+  Post.findById(postId).exec((err, result) => {
     if (err) {
       return next(new AppError('Could not update like count', 400));
     }
-    if(!result.likesIDs.includes(req.user.id)){
+    if (!result.likesIDs.includes(req.user.id)) {
       //if user has not liked the post. Like it
-      Post.findByIdAndUpdate(postId, {$inc: { likes: 1 },$push:{likesIDs:req.user.id}}, { upsert: true ,new: true }).exec((err,result)=>{
+      Post.findByIdAndUpdate(
+        postId,
+        { $inc: { likes: 1 }, $push: { likesIDs: req.user.id } },
+        { upsert: true, new: true }
+      ).exec((err, result) => {
         if (err) {
-                 return next(new AppError('Could not update like count', 400));
-            }
+          return next(new AppError('Could not update like count', 400));
+        }
         res.status(200).json({
           status: 'success',
           data: result,
         });
-  
-    })
-    }
-    else{
+      });
+    } else {
       //if user has liked the post. Dislike it
-      Post.findByIdAndUpdate(postId, { $inc: { likes: -1 },$pull:{likesIDs:req.user.id}}, { upsert: true, new: true }).exec((err,result)=>{
+      Post.findByIdAndUpdate(
+        postId,
+        { $inc: { likes: -1 }, $pull: { likesIDs: req.user.id } },
+        { upsert: true, new: true }
+      ).exec((err, result) => {
         if (err) {
-                return next(new AppError('Could not update like count', 400));
-            }
+          return next(new AppError('Could not update like count', 400));
+        }
         res.status(200).json({
           status: 'success',
           data: result,
         });
-    })
+      });
     }
-  })
+  });
 };
 
 //--------------------------Get All Posts------------------------
 
 export const getAllPosts = catchAsync(async (req, res, next) => {
   const posts = await Post.find();
-  if(!posts){
+  if (!posts) {
     return next(new AppError('Could not find any post', 400));
   }
 
@@ -181,32 +187,52 @@ export const getAllPosts = catchAsync(async (req, res, next) => {
   });
 });
 
-
 //-------------------------------- Share Post -----------------------------------------
 
-export const sharePost = (req, res,next) => {
+export const sharePost = (req, res, next) => {
   const { postId } = req.body;
-  Post.findById(postId).exec((err,result)=>{
+  Post.findById(postId).exec((err, result) => {
     if (err) {
       return next(new AppError('Could not update share count', 400));
     }
-    if(!result.sharesIDs.includes(req.user.id)){
+    if (!result.sharesIDs.includes(req.user.id)) {
       //if user has not shared the post. Share it
-      Post.findByIdAndUpdate(postId, {$inc: { shares: 1 },$push:{sharesIDs:req.user.id}}, { upsert: true ,new: true }).exec((err,result)=>{
+      Post.findByIdAndUpdate(
+        postId,
+        { $inc: { shares: 1 }, $push: { sharesIDs: req.user.id } },
+        { upsert: true, new: true }
+      ).exec((err, result) => {
         if (err) {
-                 return next(new AppError('Could not update share count', 400));
-            }
+          return next(new AppError('Could not update share count', 400));
+        }
         res.status(200).json({
           status: 'success',
           data: result,
         });
-    })
-    }
-    else{
+      });
+    } else {
       res.status(200).json({
         status: 'success',
         data: result,
       });
     }
-  })
+  });
 };
+
+//--------------------------Get All tags------------------------
+
+export const getAlltags = catchAsync(async (req, res, next) => {
+  const tags = await Post.find.distinct(tags);
+  if (!tags) {
+    return next(new AppError('Could not find any tag', 400));
+  }
+
+  // SEND RESPONSE
+  res.status(200).json({
+    status: 'success',
+    results: tags.length,
+    data: {
+      tags,
+    },
+  });
+});
