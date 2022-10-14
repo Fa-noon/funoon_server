@@ -61,9 +61,11 @@ const postSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  tags: {
-    type: [String],
-  },
+  tags: [
+    {
+      type: String,
+    },
+  ],
   createdBy: {
     type: ObjectId,
     ref: 'User',
