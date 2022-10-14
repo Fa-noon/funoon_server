@@ -9,17 +9,17 @@ const commentSchema = new mongoose.Schema({
   body: {
     type: String,
     trim: true,
-    required: true
+    required: true,
   },
   date: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
-  createdBy:{
-   type: ObjectId,
-   ref: 'User',
+  createdBy: {
+    type: ObjectId,
+    ref: 'User',
   },
-})
+});
 
 //------------------------------------Post Schema---------------------------
 
@@ -32,18 +32,16 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  likes: {type: Number, default: 0 },
-  likesIDs: [{ type: ObjectId, ref: "User" }],
- // a blog post can have multiple comments, so it should be in a array.
- // all comments info should be kept in this array of this blog post.
-  comments: [{
-      type: commentSchema,
-  }],
+  likes: { type: Number, default: 0 },
+  likesIDs: [{ type: ObjectId, ref: 'User' }],
+  // a blog post can have multiple comments, so it should be in a array.
+  // all comments info should be kept in this array of this blog post.
+  comments: [commentSchema],
   shares: {
     type: Number,
     default: 0,
   },
-  sharesIDs: [{ type: ObjectId, ref: "User" }],
+  sharesIDs: [{ type: ObjectId, ref: 'User' }],
 
   isSold: {
     type: Boolean,
