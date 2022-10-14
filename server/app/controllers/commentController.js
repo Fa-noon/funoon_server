@@ -56,3 +56,32 @@ export const updateComment = catchAsync(async (req, res, next) => {
     }
   );
 });
+
+//----------------------- delete comment -----------------------------
+
+export const deleteComment = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  const postId = req.params.id;
+  const { commentId } = req.body;
+  Post.findByIdAndUpdate({ _id: postId }, { upsert: true, new: true }).exec(
+    (err, post) => {
+      if (err) {
+        return next(new AppError('Could not find any post', 400));
+      }
+      const oldComment = post.comments.id(commentId);
+      if (!oldComment.createdBy == userId) {
+        return next(new AppError('You cannot delete this comment', 400));
+      }
+      oldComment.remove();
+      post.save((err) => {
+        if (err) {
+          return next(new AppError('Could not update the comment', 400));
+        }
+        res.status(200).json({
+          status: 'success',
+          post: post,
+        });
+      });
+    }
+  );
+});
