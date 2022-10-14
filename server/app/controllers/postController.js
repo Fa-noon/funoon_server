@@ -67,6 +67,7 @@ export const createPost = catchAsync(async (req, res, next) => {
     price: req.body.price,
     createdBy: id,
     images: images,
+    tags: req.body.tags,
   });
 
   res.status(201).json({
@@ -222,7 +223,7 @@ export const sharePost = (req, res, next) => {
 //--------------------------Get All tags------------------------
 
 export const getAlltags = catchAsync(async (req, res, next) => {
-  const tags = await Post.find.distinct(tags);
+  const tags = await Post.find().distinct('tags');
   if (!tags) {
     return next(new AppError('Could not find any tag', 400));
   }
