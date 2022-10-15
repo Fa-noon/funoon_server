@@ -139,23 +139,26 @@ export const updateUser = catchAsync(async (req, res, next) => {
 //----------------------------------Update Interests------------------------------
 export const updateInterests = catchAsync(async (req, res, next) => {
   const { interests } = req.body;
-  User.findByIdAndUpdate(req.user.id, {
-    new: true,
-    runValidators: true,
-  }).exec((err, user) => {
-    if (err || !user || !interests) {
-      return next(new AppError('Sorry, cannot update interests', 404));
+  User.findByIdAndUpdate(req.user.id, { upsert: true, new: true }).exec(
+    (err, user) => {
+      if (err || !user || !interests) {
+        return next(new AppError('Sorry, cannot update interests', 404));
+      }
+      if (interests.length < 3) {
+        return next(new AppError('Please add 3 or more than 3 interests', 404));
+      }
+      user.isInterested = true;
+      user.interests = interests;
+      user.save((err) => {
+        if (err) {
+          console.log(err);
+          return next(new AppError('Sorry, cannot update interests', 400));
+        }
+        res.status(200).json({
+          status: 'success',
+          user: user,
+        });
+      });
     }
-    if (interests.length < 3) {
-      return next(new AppError('Please add 3 or more than 3 interests', 404));
-    }
-    user.isInterested = true;
-    user.interests = interests;
-    res.status(200).json({
-      status: 'success',
-      data: {
-        user: user,
-      },
-    });
-  });
+  );
 });
