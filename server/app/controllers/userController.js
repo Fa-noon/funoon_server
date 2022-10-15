@@ -122,7 +122,7 @@ export const getUser = catchAsync(async (req, res, next) => {
     data: { user },
   });
 });
-//--------------------------Update User ny id------------------------
+//--------------------------Update User by id------------------------
 export const updateUser = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -133,5 +133,29 @@ export const updateUser = catchAsync(async (req, res, next) => {
     data: {
       user: user,
     },
+  });
+});
+
+//----------------------------------Update Interests------------------------------
+export const updateInterests = catchAsync(async (req, res, next) => {
+  const { interests } = req.body;
+  User.findByIdAndUpdate(req.user.id, {
+    new: true,
+    runValidators: true,
+  }).exec((err, user) => {
+    if (err || !user || !interests) {
+      return next(new AppError('Sorry, cannot update interests', 404));
+    }
+    if (interests.length < 3) {
+      return next(new AppError('Please add 3 or more than 3 interests', 404));
+    }
+    user.isInterested = true;
+    user.interests = interests;
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user: user,
+      },
+    });
   });
 });
