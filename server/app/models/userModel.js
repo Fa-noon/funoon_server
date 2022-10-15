@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 import mongoose from 'mongoose';
 import validator from 'validator';
-import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs';
 import multer from 'multer';
 
 const userSchema = new mongoose.Schema({
@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, 'Please provide a valid email'],
   },
+  interests: [
+    {
+      type: String,
+    },
+  ],
   photo: String,
   role: {
     type: String,
@@ -50,7 +55,10 @@ const userSchema = new mongoose.Schema({
   isVerified: {
     type: Boolean,
     default: false,
-    select: false,
+  },
+  isInterested: {
+    type: Boolean,
+    default: false,
   },
 });
 
