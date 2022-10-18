@@ -48,7 +48,7 @@ export const signup = catchAsync(async (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
+
   });
 
   createSendToken(newUser, 201, res);
@@ -91,7 +91,7 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
     'host'
   )}/api/v1/users/resetPassword/${resetToken}`;
 
-  const message = `Forgot your password? Submit a PATCH request with your new password and passwordConfirm to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
+  const message = `Forgot your password? Submit a PATCH request with your new password to: ${resetURL}.\nIf you didn't forget your password, please ignore this email!`;
 
   try {
     await sendEmail({
@@ -135,7 +135,6 @@ export const resetPassword = catchAsync(async (req, res, next) => {
     return next(new AppError('Token is invalid or has expired', 400));
   }
   user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
   await user.save();
@@ -158,7 +157,6 @@ export const updatePassword = catchAsync(async (req, res, next) => {
 
   // 3) If so, update password
   user.password = req.body.password;
-  user.passwordConfirm = req.body.passwordConfirm;
   await user.save();
   // User.findByIdAndUpdate will NOT work as intended!
 

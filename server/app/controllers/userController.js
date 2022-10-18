@@ -59,7 +59,7 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
 //--------------------------Update Current User------------------------
 export const updateMe = catchAsync(async (req, res, next) => {
   // 1) create error if user posts password data
-  if (req.body.password || req.body.passwordConfirm) {
+  if (req.body.password) {
     return next(
       new AppError(
         'This route is not for password updates Please use /updateMyPassword.',
