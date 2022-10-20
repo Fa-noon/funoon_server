@@ -22,18 +22,27 @@ const upload = multer({
   fileFilter: multerFilter,
 });
 
-export const uploadUserPhoto = upload.array('images', 10);
+export const uploadPostImages = upload.fields([
+  { name: 'images', maxCount: 10 },
+]);
 
-export const resizeUserPhoto = catchAsync(async (req, res, next) => {
-  if (!req.file) return next();
+export const resizePostimages = catchAsync(async (req, res, next) => {
+  if (!req.files.images) return next();
 
-  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+  // 2) Images
+  req.body.images = [];
 
-  await sharp(req.file.buffer)
-    .resize(500, 500)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(`./../images/${req.file.filename}`);
+  await Promise.all(
+    req.files.images.map(async (file, i) => {
+      const filename = `post-${Date.now()}-${i + 1}.jpeg`;
+      await sharp(file.buffer)
+        .resize(2000, 1333)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`server/app/images/${filename}`);
+      req.body.images.push(filename);
+    })
+  );
 
   next();
 });
@@ -54,19 +63,13 @@ const getId = (tokken) => {
 
 export const createPost = catchAsync(async (req, res, next) => {
   const id = getId(req.headers.authorization);
-  const images = [];
-  if (req.files) {
-    req.files.forEach((el) => {
-      images.push(el.originalname);
-    });
-  }
 
   const newPost = await Post.create({
     title: req.body.title,
     description: req.body.description,
     price: req.body.price,
     createdBy: id,
-    images: images,
+    images: req.body.images,
     tags: req.body.tags,
   });
 
