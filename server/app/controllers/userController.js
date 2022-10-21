@@ -3,6 +3,9 @@ import User from './../models/userModel.js';
 import catchAsync from './../helpers/catchAsync.js';
 import multer from 'multer';
 import sharp from 'sharp';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const multerStorage = multer.memoryStorage();
 
@@ -30,7 +33,7 @@ export const resizeUserPhoto = catchAsync(async (req, res, next) => {
     .resize(500, 500)
     .toFormat('jpeg')
     .jpeg({ quality: 90 })
-    .toFile(`./../images/${req.file.filename}`);
+    .toFile(`${__dirname}/../images/user/${req.file.filename}`);
 
   next();
 });

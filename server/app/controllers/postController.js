@@ -6,6 +6,9 @@ import catchAsync from '../helpers/catchAsync.js';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
 import sharp from 'sharp';
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const multerStorage = multer.memoryStorage();
 
@@ -38,8 +41,8 @@ export const resizePostimages = catchAsync(async (req, res, next) => {
       await sharp(file.buffer)
         .resize(1080, 1350)
         .toFormat('jpeg')
-        .jpeg({ quality: 90 })
-        .toFile(`server/app/images/${filename}`);
+        .jpeg({ quality: 70 })
+        .toFile(`${__dirname}/../images/posts/${filename}`);
       req.body.images.push(filename);
     })
   );

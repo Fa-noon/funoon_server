@@ -19,7 +19,7 @@ app.use(
   })
 );
 
-//  http://127.0.0.1:8000/Posts/post-1666296073783-1.jpeg 
+//  http://127.0.0.1:8000/Posts/post-1666296073783-1.jpeg
 //  working URL example
 app.use(express.static(`${__dirname}/app/images/`));
 app.use(express.urlencoded({ extended: true }));
