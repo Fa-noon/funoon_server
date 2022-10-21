@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-  uploadUserPhoto,
+  uploadPostImages,
   createPost,
   updatePost,
   getPost,
@@ -9,12 +9,13 @@ import {
   getAllPosts,
   sharePost,
   getAlltags,
+  resizePostimages
 } from '../controllers/postController.js';
 import { protect, forbid } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/createPost', protect, uploadUserPhoto, createPost);
+router.post('/createPost', protect, uploadPostImages,resizePostimages, createPost);
 router.route('/').get(getAllPosts);
 router.put('/share', protect, sharePost);
 router.get('/tags', getAlltags);
