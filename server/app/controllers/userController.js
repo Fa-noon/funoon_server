@@ -184,3 +184,24 @@ export const myProfile = catchAsync(async (req, res, next) => {
     });
   });
 });
+
+//----------------------------------User Profile----------------------------------------
+
+export const userProfile = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  User.findById(userId).exec((err, user) => {
+    if (err || !user) {
+      return next(new AppError('Sorry, cannot find profile', 404));
+    }
+    Post.find({ createdBy: userId }).exec((err, posts) => {
+      if (err) {
+        return next(new AppError('Sorry, cannot find profile', 404));
+      }
+      res.status(200).json({
+        status: 'success',
+        User: user,
+        Posts: posts,
+      });
+    });
+  });
+});
