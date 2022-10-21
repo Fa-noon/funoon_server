@@ -8,6 +8,7 @@ import {
   updateUser,
   deleteUser,
   updateInterests,
+  myProfile,
 } from '../controllers/userController.js';
 import {
   signup,
@@ -19,6 +20,8 @@ import {
 import { protect } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
+
+router.get('/myProfile', protect, myProfile);
 
 router.post('/signup', signup);
 router.post('/login', login);
