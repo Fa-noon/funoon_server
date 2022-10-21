@@ -3,9 +3,13 @@ import User from './../models/userModel.js';
 import catchAsync from './../helpers/catchAsync.js';
 import multer from 'multer';
 import sharp from 'sharp';
+<<<<<<< HEAD
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
+=======
+import Post from '../models/postModel.js';
+>>>>>>> fe35d30eb5321c695753918ef6b65b70b0f94954
 
 const multerStorage = multer.memoryStorage();
 
@@ -164,4 +168,46 @@ export const updateInterests = catchAsync(async (req, res, next) => {
       });
     }
   );
+});
+
+//----------------------------------My Profile----------------------------------------
+
+export const myProfile = catchAsync(async (req, res, next) => {
+  const userId = req.user.id;
+  User.findById(userId).exec((err, user) => {
+    if (err || !user) {
+      return next(new AppError('Sorry, cannot find profile', 404));
+    }
+    Post.find({ createdBy: userId }).exec((err, posts) => {
+      if (err) {
+        return next(new AppError('Sorry, cannot find profile', 404));
+      }
+      res.status(200).json({
+        status: 'success',
+        User: user,
+        Posts: posts,
+      });
+    });
+  });
+});
+
+//----------------------------------User Profile----------------------------------------
+
+export const userProfile = catchAsync(async (req, res, next) => {
+  const userId = req.params.id;
+  User.findById(userId).exec((err, user) => {
+    if (err || !user) {
+      return next(new AppError('Sorry, cannot find profile', 404));
+    }
+    Post.find({ createdBy: userId }).exec((err, posts) => {
+      if (err) {
+        return next(new AppError('Sorry, cannot find profile', 404));
+      }
+      res.status(200).json({
+        status: 'success',
+        User: user,
+        Posts: posts,
+      });
+    });
+  });
 });
