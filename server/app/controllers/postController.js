@@ -36,7 +36,7 @@ export const resizePostimages = catchAsync(async (req, res, next) => {
     req.files.images.map(async (file, i) => {
       const filename = `post-${Date.now()}-${i + 1}.jpeg`;
       await sharp(file.buffer)
-        .resize(2000, 1333)
+        .resize(1080, 1350)
         .toFormat('jpeg')
         .jpeg({ quality: 90 })
         .toFile(`server/app/images/${filename}`);

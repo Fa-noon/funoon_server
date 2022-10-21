@@ -2,9 +2,7 @@ import * as dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 //---------------------------Connect Databse------------------------
 dotenv.config({ path: __dirname + './../config.env' });

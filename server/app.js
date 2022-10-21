@@ -8,7 +8,8 @@ import AppError from './app/helpers/appError.js';
 import helmet from 'helmet';
 import globalErrorHandler from './app/controllers/errorController.js';
 import { dirname } from 'path';
-
+import { fileURLToPath } from 'url';
+const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
 
 //--------------------------Parsing the JSON------------------------
@@ -18,10 +19,10 @@ app.use(
   })
 );
 
-app.use(express.static('server/app/images'));
+//  http://127.0.0.1:8000/Posts/post-1666296073783-1.jpeg 
+//  working URL example
+app.use(express.static(`${__dirname}/app/images/`));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
 
 //--------------------------Logging in dev mode------------------------
 //if (process.env.NODE_ENV === 'development') {
