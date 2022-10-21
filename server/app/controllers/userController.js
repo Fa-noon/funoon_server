@@ -3,13 +3,10 @@ import User from './../models/userModel.js';
 import catchAsync from './../helpers/catchAsync.js';
 import multer from 'multer';
 import sharp from 'sharp';
-<<<<<<< HEAD
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
-=======
 import Post from '../models/postModel.js';
->>>>>>> fe35d30eb5321c695753918ef6b65b70b0f94954
 
 const multerStorage = multer.memoryStorage();
 
