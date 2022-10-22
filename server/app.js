@@ -1,4 +1,5 @@
 import express from 'express';
+import * as dotenv from 'dotenv';
 import morgan from 'morgan';
 import userRouter from './app/routes/userRoutes.js';
 import postRouter from './app/routes/postRoutes.js';
@@ -11,6 +12,8 @@ import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
+
+dotenv.config({ path: __dirname + './../config.env' });
 
 //--------------------------Parsing the JSON------------------------
 app.use(
