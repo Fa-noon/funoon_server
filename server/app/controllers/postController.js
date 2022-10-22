@@ -270,6 +270,7 @@ export const getAlltags = catchAsync(async (req, res, next) => {
 
 //---------------------------------------S3 TEST----------------------------------------
 export const s3Test = catchAsync(async (req, res, next) => {
+  console.log(process.env.BUCKET_NAME);
   const s3 = new S3Client({
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
