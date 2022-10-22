@@ -8,9 +8,23 @@ import multer from 'multer';
 import sharp from 'sharp';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const multerStorage = multer.memoryStorage();
+
+const bucket_name = process.env.BUCKET_NAME;
+const bucket_region = process.env.BUCKET_REGION;
+const bucket_access_key = process.env.BUCKET_ACCESS_KEY;
+const bucket_secret_access_key = process.env.BUCKET_SECRET_ACCESS_KEY;
+
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: bucket_access_key,
+    secretAccessKey: bucket_secret_access_key,
+  },
+  region: bucket_region,
+});
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -20,7 +34,7 @@ const multerFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
+export const upload = multer({
   storage: multerStorage,
   fileFilter: multerFilter,
 });
@@ -242,4 +256,13 @@ export const getAlltags = catchAsync(async (req, res, next) => {
       tags,
     },
   });
+});
+
+//---------------------------------------S3 TEST----------------------------------------
+export const s3Test = catchAsync(async (req, res, next) => {
+  console.log('req.body', req.body);
+  console.log('req.file', req.file);
+  //req.file.buffer stores the actual image....
+
+  res.send({});
 });
