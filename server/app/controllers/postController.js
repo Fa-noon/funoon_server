@@ -9,22 +9,40 @@ import sharp from 'sharp';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import crypto from 'crypto';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const multerStorage = multer.memoryStorage();
+import AWS from 'aws-sdk';
 
 const bucket_name = process.env.BUCKET_NAME;
-const bucket_region = process.env.BUCKET_REGION;
-const bucket_access_key = process.env.BUCKET_ACCESS_KEY;
-const bucket_secret_access_key = process.env.BUCKET_SECRET_ACCESS_KEY;
+const bucket_region = 'ap-south-1';
+const bucket_access_key = 'ASIAY6H3SXS4UYTQC4GU';
+const bucket_secret_access_key = 'yqRya+98u42tDP22o1X3ivm+o5d6I4Y3YI5JYMQ/';
+const sessionToken =
+  'IQoJb3JpZ2luX2VjELj//////////wEaCmFwLXNvdXRoLTEiRzBFAiB16cIwS7QqpKVzLD+H6rIHS+4c9A16AxPAmn2rZv7slQIhANCMRJR0s948ry1u0gbHzp1HaCEZX7Kair/NsNgPvJ+IKrECCJH//////////wEQABoMNjE0NzA3OTM2NDQxIgzViZOwFWSCL9VMTOwqhQKK9b0H8zePXAjLnNfNbU7xSL5J4QkjrFv3NllOtmTigwepzdY6Mj3A1VMjWShOCClGx180qoZLtrIWx7+lcernMOaNEIrsfCJjABY7YXGiWwUbyS08ka2uaJLIW+X5d0M5UwkRaSjGQlFAMpZakH9m1TfPRqtbGto35U+TW5f8GRXCcwVlctQ/LRy9cZ8NEzql5etkcqvGSQNGRWLYD0zJ8GYfWRtoM32KuYZXqesrp+qJyPqjpLNcmE6vJdkVwG3v7g2o2I3ArSAhcuFTKM/lgVS5iGmHsNcTLjv+KY3YGeQZzLfshbJfpOOfPgdnm/h2eQZ7mPDO54rAJbekj8sB0HSCE94wp6vQmgY6nQF/YI7QOyGXnT4e0LR6FD+wR3golhQaQjgqO6Xsn8QdXjsy/u9wtNREFAcG4ZNhHbWnPj6Fs/ZDzLx8LZuhZ4xRf1C6ImRINh2gVVd5YyhmNaqT1kDCQUqNEeG6ks70QL8Y+q4H5fMa9OgVVPV+zVlImdnsaaYR4DXU1gSN8/1Equ31e6OBXDzhaz3NcsnIW1ytymH7PCjW6zmVDMmB';
 
 const s3 = new S3Client({
   credentials: {
     accessKeyId: bucket_access_key,
     secretAccessKey: bucket_secret_access_key,
+    sessionToken: sessionToken,
   },
   region: bucket_region,
 });
+
+AWS.config.update({
+  region: 'ap-south-1',
+  accessKeyId: 'ASIAY6H3SXS4UYTQC4GU',
+  secretAccessKey: 'yqRya+98u42tDP22o1X3ivm+o5d6I4Y3YI5JYMQ/',
+  sessionToken:
+    'IQoJb3JpZ2luX2VjELj//////////wEaCmFwLXNvdXRoLTEiRzBFAiB16cIwS7QqpKVzLD+H6rIHS+4c9A16AxPAmn2rZv7slQIhANCMRJR0s948ry1u0gbHzp1HaCEZX7Kair/NsNgPvJ+IKrECCJH//////////wEQABoMNjE0NzA3OTM2NDQxIgzViZOwFWSCL9VMTOwqhQKK9b0H8zePXAjLnNfNbU7xSL5J4QkjrFv3NllOtmTigwepzdY6Mj3A1VMjWShOCClGx180qoZLtrIWx7+lcernMOaNEIrsfCJjABY7YXGiWwUbyS08ka2uaJLIW+X5d0M5UwkRaSjGQlFAMpZakH9m1TfPRqtbGto35U+TW5f8GRXCcwVlctQ/LRy9cZ8NEzql5etkcqvGSQNGRWLYD0zJ8GYfWRtoM32KuYZXqesrp+qJyPqjpLNcmE6vJdkVwG3v7g2o2I3ArSAhcuFTKM/lgVS5iGmHsNcTLjv+KY3YGeQZzLfshbJfpOOfPgdnm/h2eQZ7mPDO54rAJbekj8sB0HSCE94wp6vQmgY6nQF/YI7QOyGXnT4e0LR6FD+wR3golhQaQjgqO6Xsn8QdXjsy/u9wtNREFAcG4ZNhHbWnPj6Fs/ZDzLx8LZuhZ4xRf1C6ImRINh2gVVd5YyhmNaqT1kDCQUqNEeG6ks70QL8Y+q4H5fMa9OgVVPV+zVlImdnsaaYR4DXU1gSN8/1Equ31e6OBXDzhaz3NcsnIW1ytymH7PCjW6zmVDMmB',
+});
+
+const s33 = new AWS.S3();
+
+const generateFileName = (bytes = 32) =>
+  crypto.randomBytes(bytes).toString('hex');
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -262,7 +280,43 @@ export const getAlltags = catchAsync(async (req, res, next) => {
 export const s3Test = catchAsync(async (req, res, next) => {
   console.log('req.body', req.body);
   console.log('req.file', req.file);
+  console.log(generateFileName());
   //req.file.buffer stores the actual image....
+  //------------------------------better approach----------------------------------
+  const params = {
+    Bucket: 'cyclic-real-wear-clam-ap-south-1',
+    Key: 'Numan',
+    Body: req.file.buffer,
+    ContentType: req.file.mimetype,
+  };
+
+  const command = new PutObjectCommand(params);
+  await s3.send(command);
+
+  //--------------------cyclic approach---------------------------------------------
+  // store something
+  // const params = {
+  //   Body: req.file.buffer,
+  //   Bucket: 'cyclic-real-wear-clam-ap-south-1',
+  //   Key: 'Numan',
+  //   ContentType: req.file.mimetype,
+  // };
+  // s33.putObject(params, (err, data) => {
+  //   if (err) {
+  //     console.log('Error,', err);
+  //   } else {
+  //     console.log('success');
+  //   }
+  // });
+  // get it back
+  // let my_file = await s33
+  //   .getObject({
+  //     Bucket: 'cyclic-real-wear-clam-ap-south-1',
+  //     Key: 'Numan',
+  //   })
+  //   .promise();
+
+  // console.log(JSON.parse(my_file));
 
   res.send({});
 });
