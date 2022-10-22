@@ -77,6 +77,22 @@ const getId = (tokken) => {
   var decoded = jwt.verify(tokken.split(' ')[1], process.env.JWT_SECRET);
   return decoded['id'];
 };
+export const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  },
+  region: process.env.AWS_REGION,
+});
+
+AWS.config.update({
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  sessionToken: process.env.AWS_SESSION_TOKEN,
+});
+
 // ---------------------Create Post-------------------------------------------
 
 export const createPost = catchAsync(async (req, res, next) => {
@@ -107,11 +123,46 @@ export const getPost = catchAsync(async (req, res, next) => {
   if (!post) {
     return next(new AppError('No post found with that ID', 404));
   }
+  //------------------------------Get Link of images from s3----------------------------------
+  const s3 = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      sessionToken: process.env.AWS_SESSION_TOKEN,
+    },
+    region: process.env.AWS_REGION,
+  });
+  AWS.config.update({
+    region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  });
 
-  res.status(200).json({
-    status: 'status',
-    requestTime: req.requsetTime,
-    data: { post },
+  post.imagesUrls = [];
+  for (let i = 0; i < post.images.length; i++) {
+    const getObjectParams = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: post.images[i],
+    };
+    const getCommand = new GetObjectCommand(getObjectParams);
+    const url = await getSignedUrl(s3, getCommand, {
+      expiresIn: 60 * 60 * 24 * 6,
+    });
+    post.imagesUrls.push(url);
+  }
+  post.save((err, newPost) => {
+    if (err) {
+      console.log('S3 URLs Import Failed', err);
+      return res.status(400).json({
+        error: 'S3 URLs Import Failed',
+      });
+    }
+    res.status(200).json({
+      status: 'status',
+      requestTime: req.requsetTime,
+      data: { newPost },
+    });
   });
 });
 // ---------------------Update Post-------------------------------------------
@@ -337,7 +388,6 @@ export const s3Test = catchAsync(async (req, res, next) => {
     },
     region: process.env.AWS_REGION,
   });
-
   AWS.config.update({
     region: process.env.AWS_REGION,
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
