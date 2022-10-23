@@ -4,9 +4,9 @@ import AWS from 'aws-sdk';
 
 export async function urlGenerator(post) {
   //---------------------If post has no images
-  let output = { post };
+
   if (post.images.length === 0) {
-    return output;
+    return post;
   }
   //------------------------------Get Link of images from s3----------------------------------
   const s3 = new S3Client({
@@ -36,8 +36,43 @@ export async function urlGenerator(post) {
     });
     imagesUrls.push(url);
   }
-  output.imagesUrls = imagesUrls;
-  output = { ...output };
+  post.imagesUrls = imagesUrls;
 
-  return output;
+  return post;
 }
+
+// {
+//   "status": "success",
+//   "results": 9,
+//   "data": {
+//       "posts": [
+//           {
+//               "_id": "63399793a1529a5b8bb642ca",
+//               "title": "Numan ki dosri post",
+//               "description": "Hello this is my second post ;)",
+//               "likes": 0,
+//               "likesIDs": [],
+//               "comments": [],
+//               "shares": 1,
+//               "isSold": false,
+//               "images": [],
+//               "price": 2000,
+//               "tags": [],
+//               "createdBy": "63383b3f1ff4499ced15876b",
+//               "dateCreated": "2022-10-02T13:52:19.613Z",
+//               "__v": 0,
+//               "sharesIDs": [
+//                   "63383b3f1ff4499ced15876b"
+//               ]
+//           },
+// .
+// .
+// .
+
+// {
+//   "status": "success",
+//   "results": 0,
+//   "data": {
+//       "postsWithUrls": []
+//   }
+// }
