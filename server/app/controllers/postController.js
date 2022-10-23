@@ -90,25 +90,25 @@ AWS.config.update({
 
 // ---------------------Create Post-------------------------------------------
 
-export const createPost = catchAsync(async (req, res, next) => {
-  const id = getId(req.headers.authorization);
+// export const createPost = catchAsync(async (req, res, next) => {
+//   const id = getId(req.headers.authorization);
 
-  const newPost = await Post.create({
-    title: req.body.title,
-    description: req.body.description,
-    price: req.body.price,
-    createdBy: id,
-    images: req.body.images,
-    tags: req.body.tags,
-  });
+//   const newPost = await Post.create({
+//     title: req.body.title,
+//     description: req.body.description,
+//     price: req.body.price,
+//     createdBy: id,
+//     images: req.body.images,
+//     tags: req.body.tags,
+//   });
 
-  res.status(201).json({
-    status: 'success',
-    data: {
-      data: newPost,
-    },
-  });
-});
+//   res.status(201).json({
+//     status: 'success',
+//     data: {
+//       data: newPost,
+//     },
+//   });
+// });
 
 // ---------------------Update Post-------------------------------------------
 
@@ -212,7 +212,6 @@ export const getAllPosts = catchAsync(async (req, res, next) => {
   }
   const postsWithUrls = [];
   for (const post of posts) {
-    
     const temp = await urlGenerator(post);
     postsWithUrls.push(temp);
   }
@@ -346,7 +345,7 @@ export const getAlltags = catchAsync(async (req, res, next) => {
 // });
 
 //---------------------------------------S3 TEST----------------------------------------
-export const s3Test = catchAsync(async (req, res, next) => {
+export const createPost = catchAsync(async (req, res, next) => {
   const s3 = new S3Client({
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
