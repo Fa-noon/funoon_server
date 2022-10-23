@@ -6,7 +6,7 @@ export async function urlGenerator(post) {
   //---------------------If post has no images
   let output = { post };
 
-  if (output.images.length === 0) {
+  if (post.images.length === 0) {
     return output;
   }
   //------------------------------Get Link of images from s3----------------------------------
@@ -26,10 +26,10 @@ export async function urlGenerator(post) {
   });
 
   const imagesUrls = [];
-  for (let i = 0; i < output.images.length; i++) {
+  for (let i = 0; i < post.images.length; i++) {
     const getObjectParams = {
       Bucket: process.env.BUCKET_NAME,
-      Key: output.images[i],
+      Key: post.images[i],
     };
     const getCommand = new GetObjectCommand(getObjectParams);
     const url = await getSignedUrl(s3, getCommand, {
@@ -38,8 +38,6 @@ export async function urlGenerator(post) {
     imagesUrls.push(url);
   }
   output['imagesUrls'] = imagesUrls;
-  output = { ...output };
-
   return output;
 }
 
