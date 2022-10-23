@@ -2,10 +2,10 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import AWS from 'aws-sdk';
 
-export async function urlGenerator(input) {
+export async function urlGenerator(post) {
   //---------------------If post has no images
-  let output = { input };
-  if (input.images.length === 0) {
+  let output = { post };
+  if (post.images.length === 0) {
     return output;
   }
   //------------------------------Get Link of images from s3----------------------------------
@@ -25,10 +25,10 @@ export async function urlGenerator(input) {
   });
 
   const imagesUrls = [];
-  for (let i = 0; i < input.images.length; i++) {
+  for (let i = 0; i < post.images.length; i++) {
     const getObjectParams = {
       Bucket: process.env.BUCKET_NAME,
-      Key: input.images[i],
+      Key: post.images[i],
     };
     const getCommand = new GetObjectCommand(getObjectParams);
     const url = await getSignedUrl(s3, getCommand, {
@@ -36,7 +36,8 @@ export async function urlGenerator(input) {
     });
     imagesUrls.push(url);
   }
-  output = { ...output, imagesUrls };
+  output.imagesUrls = imagesUrls;
+  output = { ...output };
 
   return output;
 }
