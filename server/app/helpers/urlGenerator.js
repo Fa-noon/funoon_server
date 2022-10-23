@@ -4,7 +4,7 @@ import AWS from 'aws-sdk';
 
 export async function urlGenerator(post) {
   //---------------------If post has no images
-  const output = { ...post };
+  let output = { post };
 
   if (output.images.length === 0) {
     return output;
@@ -38,6 +38,7 @@ export async function urlGenerator(post) {
     imagesUrls.push(url);
   }
   output['imagesUrls'] = imagesUrls;
+  output = { ...output };
 
   return output;
 }
