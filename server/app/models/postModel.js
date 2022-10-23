@@ -57,6 +57,10 @@ const postSchema = new mongoose.Schema({
     type: [String],
     required: true,
   },
+  imagesUrls: {
+    type: [String],
+    required: false,
+  },
   price: {
     type: Number,
     required: true,
