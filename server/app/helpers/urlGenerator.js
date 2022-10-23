@@ -36,7 +36,7 @@ export async function urlGenerator(post) {
     });
     imagesUrls.push(url);
   }
-  post.imagesUrls = imagesUrls;
+  post['imagesUrls'] = imagesUrls;
 
   return post;
 }
