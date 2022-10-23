@@ -13,6 +13,7 @@ import {
   PutObjectCommand,
   GetObjectCommand,
 } from '@aws-sdk/client-s3';
+
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import crypto from 'crypto';
@@ -109,22 +110,6 @@ export const createPost = catchAsync(async (req, res, next) => {
   });
 });
 
-// ---------------------Get Post-------------------------------------------
-
-export const getPost = catchAsync(async (req, res, next) => {
-  const post = await Post.findById(req.params.id);
-
-  if (!post) {
-    return next(new AppError('No post found with that ID', 404));
-  }
-  //---------------------------------Generating Urls-------------------------------------
-  const postWithUrls = await urlGenerator(post);
-  res.status(200).json({
-    status: 'status',
-    requestTime: req.requsetTime,
-    data: postWithUrls,
-  });
-});
 // ---------------------Update Post-------------------------------------------
 
 export const updatePost = catchAsync(async (req, res, next) => {
@@ -201,6 +186,22 @@ export const likePost = (req, res, next) => {
     }
   });
 };
+// ---------------------Get Post-------------------------------------------
+
+export const getPost = catchAsync(async (req, res, next) => {
+  const post = await Post.findById(req.params.id);
+
+  if (!post) {
+    return next(new AppError('No post found with that ID', 404));
+  }
+  //---------------------------------Generating Urls-------------------------------------
+  const postWithUrls = await urlGenerator(post);
+  res.status(200).json({
+    status: 'status',
+    requestTime: req.requsetTime,
+    data: postWithUrls,
+  });
+});
 
 //--------------------------Get All Posts------------------------
 
@@ -209,13 +210,18 @@ export const getAllPosts = catchAsync(async (req, res, next) => {
   if (!posts) {
     return next(new AppError('Could not find any post', 400));
   }
+  const postsWithUrls = [];
+  for (const post of posts) {
+    const temp = await urlGenerator(post);
+    postsWithUrls.push(temp);
+  }
 
   // SEND RESPONSE
   res.status(200).json({
     status: 'success',
-    results: posts.length,
+    results: postsWithUrls.length,
     data: {
-      posts,
+      postsWithUrls,
     },
   });
 });
