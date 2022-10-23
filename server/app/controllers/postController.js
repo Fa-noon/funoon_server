@@ -20,13 +20,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const multerStorage = multer.memoryStorage();
 import AWS from 'aws-sdk';
-
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const generateFileName = (bytes = 32) =>
-  crypto.randomBytes(bytes).toString('hex');
+import { urlGenerator } from '../helpers/urlGenerator.js';
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -123,46 +117,12 @@ export const getPost = catchAsync(async (req, res, next) => {
   if (!post) {
     return next(new AppError('No post found with that ID', 404));
   }
-  //------------------------------Get Link of images from s3----------------------------------
-  const s3 = new S3Client({
-    credentials: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      sessionToken: process.env.AWS_SESSION_TOKEN,
-    },
-    region: process.env.AWS_REGION,
-  });
-  AWS.config.update({
-    region: process.env.AWS_REGION,
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    sessionToken: process.env.AWS_SESSION_TOKEN,
-  });
-
-  post.imagesUrls = [];
-  for (let i = 0; i < post.images.length; i++) {
-    const getObjectParams = {
-      Bucket: process.env.BUCKET_NAME,
-      Key: post.images[i],
-    };
-    const getCommand = new GetObjectCommand(getObjectParams);
-    const url = await getSignedUrl(s3, getCommand, {
-      expiresIn: 60 * 60 * 24 * 6,
-    });
-    post.imagesUrls.push(url);
-  }
-  post.save((err, newPost) => {
-    if (err) {
-      console.log('S3 URLs Import Failed', err);
-      return res.status(400).json({
-        error: 'S3 URLs Import Failed',
-      });
-    }
-    res.status(200).json({
-      status: 'status',
-      requestTime: req.requsetTime,
-      data: { newPost },
-    });
+  //---------------------------------Generating Urls-------------------------------------
+  const postWithUrls = await urlGenerator(post);
+  res.status(200).json({
+    status: 'status',
+    requestTime: req.requsetTime,
+    data: postWithUrls,
   });
 });
 // ---------------------Update Post-------------------------------------------
@@ -409,6 +369,7 @@ export const s3Test = catchAsync(async (req, res, next) => {
       Bucket: process.env.BUCKET_NAME,
       Key: req.body.images[i],
       Body: req.files.images[i].buffer,
+      ContentType: req.files.images[i].mimetype,
     };
 
     const putCommand = new PutObjectCommand(params);
