@@ -20,21 +20,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const multerStorage = multer.memoryStorage();
 import AWS from 'aws-sdk';
-
-import dotenv from 'dotenv';
-
-dotenv.config();
-
-const configEnv = {
-  BUCKET_NAME: process.env.BUCKET_NAME,
-  AWS_REGION: process.env.AWS_REGION,
-  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID,
-  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY,
-  AWS_SESSION_TOKEN: process.env.AWS_SESSION_TOKEN,
-};
-
-const generateFileName = (bytes = 32) =>
-  crypto.randomBytes(bytes).toString('hex');
+import { urlGenerator } from '../helpers/urlGenerator.js';
 
 const multerFilter = (req, file, cb) => {
   if (file.mimetype.startsWith('image')) {
@@ -61,12 +47,11 @@ export const resizePostimages = catchAsync(async (req, res, next) => {
 
   await Promise.all(
     req.files.images.map(async (file, i) => {
-      const filename = `post-${Date.now()}-${i + 1}.jpeg`;
+      const filename = `post-${Date.now()}.jpg`;
       await sharp(file.buffer)
         .resize(1080, 1350)
         .toFormat('jpeg')
-        .jpeg({ quality: 70 })
-        .toFile(`${__dirname}/../images/posts/${filename}`);
+        .jpeg({ quality: 70 });
       req.body.images.push(filename);
     })
   );
@@ -86,6 +71,22 @@ const getId = (tokken) => {
   var decoded = jwt.verify(tokken.split(' ')[1], process.env.JWT_SECRET);
   return decoded['id'];
 };
+export const s3 = new S3Client({
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  },
+  region: process.env.AWS_REGION,
+});
+
+AWS.config.update({
+  region: process.env.AWS_REGION,
+  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+  sessionToken: process.env.AWS_SESSION_TOKEN,
+});
+
 // ---------------------Create Post-------------------------------------------
 
 export const createPost = catchAsync(async (req, res, next) => {
@@ -116,11 +117,12 @@ export const getPost = catchAsync(async (req, res, next) => {
   if (!post) {
     return next(new AppError('No post found with that ID', 404));
   }
-
+  //---------------------------------Generating Urls-------------------------------------
+  const postWithUrls = await urlGenerator(post);
   res.status(200).json({
     status: 'status',
     requestTime: req.requsetTime,
-    data: { post },
+    data: postWithUrls,
   });
 });
 // ---------------------Update Post-------------------------------------------
@@ -268,9 +270,76 @@ export const getAlltags = catchAsync(async (req, res, next) => {
   });
 });
 
+// //---------------------------------------S3 TEST----------------------------------------
+// export const s3Tests = catchAsync(async (req, res, next) => {
+//   const s3 = new S3Client({
+//     credentials: {
+//       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//       secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//       sessionToken: process.env.AWS_SESSION_TOKEN,
+//     },
+//     region: process.env.AWS_REGION,
+//   });
+
+//   AWS.config.update({
+//     region: process.env.AWS_REGION,
+//     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//     sessionToken: process.env.AWS_SESSION_TOKEN,
+//   });
+
+//   // console.log('req.body', req.body);
+//   // console.log('req.file', req.file);
+//   // console.log(generateFileName());
+
+//   const uniqueKey = generateFileName();
+//   //req.file.buffer stores the actual image....
+//   //-------------------------------------Resize Images---------------------------------------
+//   const buffer = await sharp(req.file.buffer)
+//     .resize({ height: 1080, width: 1350, fit: 'contain' })
+//     .toBuffer();
+//   //------------------------------better approach----------------------------------
+//   const params = {
+//     Bucket: process.env.BUCKET_NAME,
+//     Key: uniqueKey,
+//     Body: buffer,
+//     ContentType: req.file.mimetype,
+//   };
+
+//   const putCommand = new PutObjectCommand(params);
+//   await s3.send(putCommand);
+
+//   //------------------------------Get Link of images from s3----------------------------------
+//   const getObjectParams = {
+//     Bucket: process.env.BUCKET_NAME,
+//     Key: uniqueKey,
+//   };
+//   const getCommand = new GetObjectCommand(getObjectParams);
+//   const url = await getSignedUrl(s3, getCommand, {
+//     expiresIn: 60 * 60 * 24 * 6,
+//   });
+//   //--------------------------------Save Post in database--------------------------------------
+//   const id = req.user.id;
+
+//   const newPost = await Post.create({
+//     title: req.body.title,
+//     description: req.body.description,
+//     price: req.body.price,
+//     createdBy: id,
+//     images: url,
+//     tags: req.body.tags,
+//   });
+
+//   res.status(201).json({
+//     status: 'success',
+//     data: {
+//       data: newPost,
+//     },
+//   });
+// });
+
 //---------------------------------------S3 TEST----------------------------------------
 export const s3Test = catchAsync(async (req, res, next) => {
-  console.log(process.env.BUCKET_NAME);
   const s3 = new S3Client({
     credentials: {
       accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -279,7 +348,6 @@ export const s3Test = catchAsync(async (req, res, next) => {
     },
     region: process.env.AWS_REGION,
   });
-
   AWS.config.update({
     region: process.env.AWS_REGION,
     accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -289,34 +357,34 @@ export const s3Test = catchAsync(async (req, res, next) => {
 
   // console.log('req.body', req.body);
   // console.log('req.file', req.file);
-  // console.log(generateFileName());
 
-  const uniqueKey = generateFileName();
   //req.file.buffer stores the actual image....
   //-------------------------------------Resize Images---------------------------------------
-  const buffer = await sharp(req.file.buffer)
-    .resize({ height: 1080, width: 1350, fit: 'contain' })
-    .toBuffer();
+  // const buffer = await sharp(req.file.buffer)
+  //   .resize({ height: 1080, width: 1350, fit: 'contain' })
+  //   .toBuffer();
   //------------------------------better approach----------------------------------
-  const params = {
-    Bucket: process.env.BUCKET_NAME,
-    Key: uniqueKey,
-    Body: buffer,
-    ContentType: req.file.mimetype,
-  };
+  for (let i = 0; i < req.body.images.length; i++) {
+    const params = {
+      Bucket: process.env.BUCKET_NAME,
+      Key: req.body.images[i],
+      Body: req.files.images[i].buffer,
+      ContentType: req.files.images[i].mimetype,
+    };
 
-  const putCommand = new PutObjectCommand(params);
-  await s3.send(putCommand);
+    const putCommand = new PutObjectCommand(params);
+    await s3.send(putCommand);
+  }
 
   //------------------------------Get Link of images from s3----------------------------------
-  const getObjectParams = {
-    Bucket: process.env.BUCKET_NAME,
-    Key: uniqueKey,
-  };
-  const getCommand = new GetObjectCommand(getObjectParams);
-  const url = await getSignedUrl(s3, getCommand, {
-    expiresIn: 60 * 60 * 24 * 6,
-  });
+  // const getObjectParams = {
+  //   Bucket: process.env.BUCKET_NAME,
+  //   Key: uniqueKey,
+  // };
+  // const getCommand = new GetObjectCommand(getObjectParams);
+  // const url = await getSignedUrl(s3, getCommand, {
+  //   expiresIn: 60 * 60 * 24 * 6,
+  // });
   //--------------------------------Save Post in database--------------------------------------
   const id = req.user.id;
 
@@ -325,7 +393,7 @@ export const s3Test = catchAsync(async (req, res, next) => {
     description: req.body.description,
     price: req.body.price,
     createdBy: id,
-    images: url,
+    images: req.body.images,
     tags: req.body.tags,
   });
 

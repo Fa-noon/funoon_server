@@ -24,7 +24,8 @@ router.post(
   resizePostimages,
   createPost
 );
-router.post('/s3', protect, upload.single('images'), s3Test);
+// router.post('/s3', protect, upload.single('images'), s3Test);
+router.post('/s3', protect, uploadPostImages, resizePostimages, s3Test);
 router.route('/').get(getAllPosts);
 router.put('/share', protect, sharePost);
 router.get('/tags', getAlltags);
