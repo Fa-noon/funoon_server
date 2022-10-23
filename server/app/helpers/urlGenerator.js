@@ -4,10 +4,9 @@ import AWS from 'aws-sdk';
 
 export async function urlGenerator(post) {
   //---------------------If post has no images
-  let output = { post };
 
   if (post.images.length === 0) {
-    return output;
+    return post;
   }
   //------------------------------Get Link of images from s3----------------------------------
   const s3 = new S3Client({
@@ -37,8 +36,8 @@ export async function urlGenerator(post) {
     });
     imagesUrls.push(url);
   }
-  output['imagesUrls'] = imagesUrls;
-  return output;
+  post['imagesUrls'] = imagesUrls;
+  return post;
 }
 
 // {
