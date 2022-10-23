@@ -3,6 +3,11 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import AWS from 'aws-sdk';
 
 export async function urlGenerator(input) {
+  //---------------------If post has no images
+  let output = { input };
+  if (input.images.length === 0) {
+    return output;
+  }
   //------------------------------Get Link of images from s3----------------------------------
   const s3 = new S3Client({
     credentials: {
@@ -18,7 +23,7 @@ export async function urlGenerator(input) {
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
     sessionToken: process.env.AWS_SESSION_TOKEN,
   });
-  let output = { input };
+
   const imagesUrls = [];
   for (let i = 0; i < input.images.length; i++) {
     const getObjectParams = {

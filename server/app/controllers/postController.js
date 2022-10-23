@@ -212,6 +212,7 @@ export const getAllPosts = catchAsync(async (req, res, next) => {
   }
   const postsWithUrls = [];
   for (const post of posts) {
+    
     const temp = await urlGenerator(post);
     postsWithUrls.push(temp);
   }
