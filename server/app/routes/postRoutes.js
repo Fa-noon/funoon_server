@@ -11,12 +11,19 @@ import {
   getAlltags,
   resizePostimages,
   upload,
-  s3Test,
+  //s3Test,
 } from '../controllers/postController.js';
 import { protect, forbid } from '../middlewares/authMiddleware.js';
 
 const router = express.Router();
 
+// router.post(
+//   '/createPost',
+//   protect,
+//   uploadPostImages,
+//   resizePostimages,
+//   createPost
+// );
 router.post(
   '/createPost',
   protect,
@@ -24,7 +31,6 @@ router.post(
   resizePostimages,
   createPost
 );
-router.post('/createPost', protect, uploadPostImages, resizePostimages, s3Test);
 router.route('/').get(getAllPosts);
 router.put('/share', protect, sharePost);
 router.get('/tags', getAlltags);
