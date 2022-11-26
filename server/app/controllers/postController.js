@@ -206,7 +206,7 @@ export const getPost = catchAsync(async (req, res, next) => {
 //--------------------------Get All Posts------------------------
 
 export const getAllPosts = catchAsync(async (req, res, next) => {
-  const posts = await Post.find();
+  const posts = await Post.find().populate('createdBy');
   if (!posts) {
     return next(new AppError('Could not find any post', 400));
   }
