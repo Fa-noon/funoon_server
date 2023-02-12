@@ -8,6 +8,13 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 import Post from '../models/postModel.js';
 
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from '@aws-sdk/client-s3';
+import AWS from 'aws-sdk';
+import { urlGenerator } from '../helpers/urlGenerator.js';
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
@@ -62,6 +69,42 @@ export const getAllUsers = catchAsync(async (req, res, next) => {
 
 //--------------------------Update Current User------------------------
 export const updateMe = catchAsync(async (req, res, next) => {
+  const s3 = new S3Client({
+    credentials: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      sessionToken: process.env.AWS_SESSION_TOKEN,
+    },
+    region: process.env.AWS_REGION,
+  });
+
+  AWS.config.update({
+    region: process.env.AWS_REGION,
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    sessionToken: process.env.AWS_SESSION_TOKEN,
+  });
+
+  // console.log('req.body', req.body);
+  // console.log('req.file', req.file);
+  // console.log(generateFileName());
+
+  //req.file.buffer stores the actual image....
+  //-------------------------------------Resize Images---------------------------------------
+  const buffer = await sharp(req.file.buffer)
+    .resize({ height: 1080, width: 1350, fit: 'contain' })
+    .toBuffer();
+  //------------------------------better approach----------------------------------
+  const params = {
+    Bucket: process.env.BUCKET_NAME,
+    Key: req.file.originalname + Date.now(),
+    Body: buffer,
+    ContentType: req.file.mimetype,
+  };
+
+  const putCommand = new PutObjectCommand(params);
+  await s3.send(putCommand);
+
   // 1) create error if user posts password data
   if (req.body.password) {
     return next(
