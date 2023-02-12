@@ -2,6 +2,7 @@ import Post from './../models/postModel.js';
 import User from './../models/userModel.js';
 import catchAsync from '../helpers/catchAsync.js';
 import AppError from './../helpers/appError.js';
+import { urlGenerator } from '../helpers/urlGenerator.js';
 
 //----------------------- Search -----------------------------
 
@@ -31,19 +32,24 @@ export const Search = catchAsync(async (req, res, next) => {
 
 //-------------------------------------- Un Auth Feed ------------------------------------------------
 export const unAuthFeed = catchAsync(async (req, res, next) => {
-  Post.find()
+  const posts = await Post.find()
     .populate('createdBy', 'name')
-    .sort({ dateCreated: -1 })
-    .exec((err, posts) => {
-      if (err) {
-        return next(new AppError('Could not load feed at this moment', 400));
-      }
-      res.status(200).json({
-        status: 'success',
-        posts,
-        Total_posts: posts.length,
-      });
-    });
+    .sort({ dateCreated: -1 });
+  if (!posts) {
+    return next(new AppError('Could not find any post', 400));
+  }
+  //--------------------------------------Adding the img links--------------------------------------
+  const postsWithUrls = [];
+  for (const post of posts) {
+    const temp = await urlGenerator(post);
+    postsWithUrls.push(temp);
+  }
+
+  res.status(200).json({
+    status: 'success',
+    posts: postsWithUrls,
+    Total_posts: posts.length,
+  });
 });
 
 //-------------------------------------- Auth Feed ------------------------------------------------
@@ -92,11 +98,17 @@ export const authFeed = catchAsync(async (req, res, next) => {
       ...new Map(realPosts.map((item) => [item[key], item])).values(),
     ];
 
+    //--------------------------------------Adding the img links--------------------------------------
+    const postsWithUrls = [];
+    for (const uniquePost of uniquePosts) {
+      const temp = await urlGenerator(uniquePost);
+      postsWithUrls.push(temp);
+    }
     //-----------------------------Return the response-----------------------------------------------
     res.status(200).json({
       status: 'success',
-      posts: uniquePosts,
-      Total_posts: uniquePosts.length,
+      posts: postsWithUrls,
+      Total_posts: postsWithUrls.length,
     });
   } catch (error) {
     return next(new AppError(error, 400));
